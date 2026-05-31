@@ -1,0 +1,161 @@
+# DocLicensing
+
+A small, production-shaped **document-licensing** application: browse a bilingual (Hebrew/English)
+catalog of standards documents, license one through a card payment, and receive a **watermarked,
+single-licence PDF** plus an email receipt.
+
+It's a generic, publishable analog of the kind of public-sector e-commerce work I do day-to-day —
+catalog → search → payment → document delivery — built to show how I structure a real .NET + React
+codebase rather than to be a finished product.
+
+**Stack:** ASP.NET Core Web API (.NET 8) · Entity Framework Core · SQL Server · React + TypeScript
+(Vite) · react-i18next with full RTL support · xUnit · Docker · GitHub Actions.
+
+---
+
+## Architecture
+
+A layered backend behind a thin API, with the integration points (payment, PDF, email) hidden
+behind interfaces so they can be swapped or faked.
+
+```mermaid
+flowchart LR
+    subgraph Web [React + Vite + TS]
+        UI[Catalog UI\nEN/HE - LTR/RTL]
+    end
+    subgraph Api [DocLicensing.Api]
+        C[Controllers\nCatalog / Checkout / Documents / Auth]
+    end
+    subgraph Core [DocLicensing.Core]
+        S[Services\nCatalogService / CheckoutService]
+        I[Interfaces\nIPaymentService / IPdfService / IEmailService / IDocumentRepository]
+    end
+    subgraph Infra [DocLicensing.Infrastructure]
+        R[EF Core + SQL Server]
+        P[Stripe / Fake payment]
+        D[QuestPDF watermark]
+        M[SendGrid / Log email]
+    end
+
+    UI -->|HTTP/JSON| C
+    C --> S
+    S --> I
+    I -.implemented by.-> R
+    I -.implemented by.-> P
+    I -.implemented by.-> D
+    I -.implemented by.-> M
+```
+
+**Projects**
+
+| Project | Responsibility |
+|---|---|
+| `DocLicensing.Core` | Domain models, DTOs, service interfaces, business logic. No framework dependencies. |
+| `DocLicensing.Infrastructure` | EF Core `DbContext` + repository, and the payment/PDF/email implementations. |
+| `DocLicensing.Api` | Controllers, DI wiring, Swagger, JWT auth, CORS. |
+| `DocLicensing.Tests` | xUnit tests for the checkout flow using in-memory fakes. |
+| `src/web` | React + TypeScript frontend with i18n and RTL. |
+
+---
+
+## Running it
+
+### Backend (API)
+
+Requires the .NET 8 SDK (or newer) and either SQL Server LocalDB (default) or the Docker setup below.
+
+```bash
+dotnet restore
+dotnet run --project src/DocLicensing.Api
+```
+
+Then open **http://localhost:5080/swagger**. In Development the database is created and seeded on
+startup, so the catalog works immediately.
+
+Try the flow in Swagger:
+
+1. `GET /api/catalog?lang=he` — bilingual catalog.
+2. `POST /api/auth/token` with `{ "username": "sofia" }` — copy the `access_token`, click
+   **Authorize** in Swagger, paste `Bearer <token>`.
+3. `POST /api/checkout` with `{ "documentId": 1, "buyerName": "Sofia", "buyerEmail": "s@example.com" }`.
+4. Open the returned `downloadUrl` — `GET /api/documents/1/download?purchase=…` — to get the
+   watermarked PDF.
+
+### Frontend (React)
+
+Requires Node 20+.
+
+```bash
+cd src/web
+npm install
+npm run dev
+```
+
+Open **http://localhost:5173**. The catalog loads from the API; the language switcher toggles
+EN ↔ HE and flips the whole layout LTR ↔ RTL. (Set `VITE_API_URL` via `.env` if the API isn't on
+`localhost:5080` — see `.env.example`.)
+
+### Everything via Docker
+
+```bash
+docker compose up --build
+```
+
+Brings up SQL Server + the API (seeded) on http://localhost:5080.
+
+### Tests
+
+```bash
+dotnet test
+```
+
+---
+
+## Design decisions
+
+These are the choices I'd defend in a review — no metrics I can't measure, just the reasoning.
+
+- **Layered with interface seams (Core / Infrastructure / Api).** `Core` holds the business logic
+  and depends on nothing. The payment, PDF, and email providers sit behind interfaces, so the API
+  doesn't know whether payments go to Stripe or a fake. This is what makes `CheckoutService`
+  testable without a database or a real payment provider.
+- **Provider strategy via configuration.** `Payments:Provider` / `Email:Provider` select the real
+  vs. fake implementation in `AddInfrastructure`. The defaults (`Fake`, `Log`) let the project run
+  end-to-end with zero secrets; flip them once Stripe/SendGrid keys are in user-secrets.
+- **Localisation in the data model, not duplicated rows.** A `Document` carries both `TitleEn` and
+  `TitleHe`; `CatalogService` projects to a single localised `DocumentDto` based on the requested
+  language. The frontend mirrors this with one resource bundle per language and an RTL flip driven
+  by the document `dir` attribute.
+- **EnsureCreated for the demo, migrations for real.** Startup seeding keeps first-run friction at
+  zero. Moving to EF migrations is the first roadmap item.
+
+---
+
+## One-week build roadmap
+
+This repository is the **starting skeleton**. The plan to take it to "portfolio-ready":
+
+- [x] **Day 1** — Solution skeleton: layered API, EF Core + seed, catalog endpoint, React catalog
+      with EN/HE + RTL, Swagger, tests, Docker, CI.
+- [ ] **Day 2** — Replace `EnsureCreated` with EF migrations; add paging/filtering and an
+      Examine-style search endpoint; expand catalog data.
+- [ ] **Day 3** — Implement `StripePaymentService` (test mode) and `SendGridEmailService` for real;
+      handle the Stripe webhook to confirm payment.
+- [ ] **Day 4** — Replace demo JWT with ASP.NET Core Identity (or Azure AD); a real "my purchases"
+      page behind auth.
+- [ ] **Day 5** — Frontend: checkout form + purchase history, loading/empty/error states, and basic
+      component tests (Vitest + Testing Library).
+- [ ] **Day 6** — Deploy: API to Azure App Service, SQL to Azure SQL, frontend to Azure Static Web
+      Apps; wire the CI to deploy on `main`.
+- [ ] **Day 7** — Polish: architecture notes, screenshots/GIF in this README, accessibility pass on
+      the RTL layout.
+
+---
+
+## Notes
+
+- **No secrets are committed.** Stripe/SendGrid keys are read from configuration / user-secrets /
+  environment variables. The JWT signing key in `appsettings.json` is a development placeholder —
+  replace it for any real deployment.
+- The `Stripe`/`SendGrid` classes are intentionally **stubs** marked with `TODO` — the seams are in
+  place; Day 3 fills them in.

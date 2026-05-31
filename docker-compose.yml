@@ -1,0 +1,19 @@
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "Your_strong_Pass123"
+    ports:
+      - "1433:1433"
+
+  api:
+    build: .
+    depends_on:
+      - db
+    environment:
+      # Development enables Swagger + the create/seed-on-startup step.
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__Default: "Server=db;Database=DocLicensing;User Id=sa;Password=Your_strong_Pass123;TrustServerCertificate=True"
+    ports:
+      - "5080:8080"

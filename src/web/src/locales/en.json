@@ -1,0 +1,10 @@
+{
+  "title": "Document Licensing",
+  "subtitle": "Browse and license standards documents",
+  "price": "Price",
+  "buy": "License",
+  "language": "Language",
+  "category": "Category",
+  "loading": "Loading…",
+  "error": "Could not load the catalog. Is the API running?"
+}
