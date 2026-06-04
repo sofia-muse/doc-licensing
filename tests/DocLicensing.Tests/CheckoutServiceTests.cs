@@ -64,6 +64,9 @@ public class CheckoutServiceTests
 
         public Task<Purchase?> GetPurchaseAsync(int id, CancellationToken ct = default) =>
             Task.FromResult(Purchases.FirstOrDefault(p => p.Id == id));
+
+        public Task<(IReadOnlyList<Document> Items, int Total)> SearchAsync(string? q, string? category, int page, int pageSize, CancellationToken ct = default) =>
+            Task.FromResult<(IReadOnlyList<Document>, int)>((Array.Empty<Document>(), 0));
     }
 
     private sealed class StubPaymentService : IPaymentService

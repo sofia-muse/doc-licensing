@@ -51,12 +51,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 
-    // Create + seed the database on startup (dev only). Retries while SQL Server warms up.
+    // Apply EF migrations on startup (dev only). Retries while SQL Server warms up.
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     for (var attempt = 1; attempt <= 10; attempt++)
     {
-        try { db.Database.EnsureCreated(); break; }
+        try { db.Database.Migrate(); break; }
         catch when (attempt < 10) { Thread.Sleep(2000); }
     }
 }

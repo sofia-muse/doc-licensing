@@ -41,6 +41,7 @@ public static class DependencyInjection
         services.AddScoped<ICheckoutService, CheckoutService>();
 
         services.AddScoped<IValidator<CheckoutRequest>, CheckoutRequestValidator>();
+        services.AddScoped<IValidator<SearchQuery>, SearchQueryValidator>();
 
         return services;
     }

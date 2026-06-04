@@ -22,6 +22,13 @@ public class CatalogService : ICatalogService
         return doc is null ? null : Map(doc, lang);
     }
 
+    public async Task<PagedResult<DocumentDto>> SearchAsync(SearchQuery query, CancellationToken ct = default)
+    {
+        var (items, total) = await _repo.SearchAsync(query.Q, query.Category, query.Page, query.PageSize, ct);
+        var dtos = items.Select(d => Map(d, query.Lang)).ToList();
+        return new PagedResult<DocumentDto>(dtos, total, query.Page, query.PageSize);
+    }
+
     private static DocumentDto Map(Document d, string lang)
     {
         var he = string.Equals(lang, "he", StringComparison.OrdinalIgnoreCase);

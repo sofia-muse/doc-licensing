@@ -69,17 +69,32 @@ dotnet restore
 dotnet run --project src/DocLicensing.Api
 ```
 
-Then open **http://localhost:5080/swagger**. In Development the database is created and seeded on
-startup, so the catalog works immediately.
+Then open **http://localhost:5080/swagger**. In Development the database is created from the EF
+migrations and seeded on startup, so the catalog works immediately.
 
 Try the flow in Swagger:
 
 1. `GET /api/catalog?lang=he` — bilingual catalog.
-2. `POST /api/auth/token` with `{ "username": "sofia" }` — copy the `access_token`, click
+2. `GET /api/catalog/search?q=security&lang=he&page=1&pageSize=5` — paged search across code,
+   titles (EN+HE), descriptions and category.
+3. `POST /api/auth/token` with `{ "username": "sofia" }` — copy the `access_token`, click
    **Authorize** in Swagger, paste `Bearer <token>`.
-3. `POST /api/checkout` with `{ "documentId": 1, "buyerName": "Sofia", "buyerEmail": "s@example.com" }`.
-4. Open the returned `downloadUrl` — `GET /api/documents/1/download?purchase=…` — to get the
+4. `POST /api/checkout` with `{ "documentId": 1, "buyerName": "Sofia", "buyerEmail": "s@example.com" }`.
+5. Open the returned `downloadUrl` — `GET /api/documents/1/download?purchase=…` — to get the
    watermarked PDF.
+
+### Migrations
+
+EF Core migrations are checked in under `src/DocLicensing.Infrastructure/Migrations/`. `dotnet-ef`
+is a local tool — restore it once with `dotnet tool restore`, then add new migrations with:
+
+```bash
+dotnet ef migrations add <Name> \
+  --project src/DocLicensing.Infrastructure \
+  --startup-project src/DocLicensing.Api
+```
+
+The dev startup applies pending migrations automatically.
 
 ### Frontend (React)
 
@@ -137,8 +152,10 @@ This repository is the **starting skeleton**. The plan to take it to "portfolio-
 
 - [x] **Day 1** — Solution skeleton: layered API, EF Core + seed, catalog endpoint, React catalog
       with EN/HE + RTL, Swagger, tests, Docker, CI.
-- [ ] **Day 2** — Replace `EnsureCreated` with EF migrations; add paging/filtering and an
-      Examine-style search endpoint; expand catalog data.
+- [x] **Day 2** — EF Core migrations replace `EnsureCreated`; `GET /api/catalog/search` with
+      `q` / `category` filtering and paging via `EF.Functions.Like` across code, titles (EN+HE)
+      and descriptions; catalog expanded to 12 bilingual documents across 12 categories;
+      `dotnet-ef` registered as a local tool; search tests added.
 - [ ] **Day 3** — Implement `StripePaymentService` (test mode) and `SendGridEmailService` for real;
       handle the Stripe webhook to confirm payment.
 - [ ] **Day 4** — Replace demo JWT with ASP.NET Core Identity (or Azure AD); a real "my purchases"
