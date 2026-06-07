@@ -5,6 +5,7 @@
   --text: #e2e8f0;
   --muted: #94a3b8;
   --accent: #22d3ee;
+  --danger: #fca5a5;
   font-family: system-ui, "Segoe UI", Arial, "Noto Sans Hebrew", sans-serif;
 }
 
@@ -24,6 +25,8 @@ body {
   padding: 32px 20px;
 }
 
+/* ---- header ---- */
+
 header {
   display: flex;
   align-items: flex-start;
@@ -32,6 +35,11 @@ header {
   border-bottom: 1px solid var(--line);
   padding-bottom: 16px;
   margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.brand {
+  flex: 1 1 240px;
 }
 
 h1 {
@@ -44,6 +52,39 @@ h1 {
   color: var(--muted);
 }
 
+.nav-links {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.nav-links a,
+.nav-links button {
+  color: var(--text);
+  text-decoration: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  font: inherit;
+}
+
+.nav-links a:hover,
+.nav-links button:hover {
+  background: var(--card);
+}
+
+.nav-links a.active {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.nav-signout {
+  font-size: 0.9em;
+}
+
 .lang select {
   background: var(--card);
   color: var(--text);
@@ -52,7 +93,37 @@ h1 {
   padding: 6px 8px;
 }
 
-.catalog {
+/* ---- search + pager ---- */
+
+.search-input {
+  width: 100%;
+  background: var(--card);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 16px;
+  font: inherit;
+}
+
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.pager button {
+  background: var(--card);
+  color: var(--text);
+  border: 1px solid var(--line);
+}
+
+/* ---- catalog + cards ---- */
+
+.catalog,
+.purchases {
   list-style: none;
   margin: 0;
   padding: 0;
@@ -72,6 +143,7 @@ h1 {
   justify-content: space-between;
   color: var(--muted);
   font-size: 0.85rem;
+  gap: 12px;
 }
 
 .code {
@@ -92,6 +164,7 @@ h1 {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
 }
 
 .price {
@@ -106,13 +179,132 @@ button {
   padding: 8px 16px;
   font-weight: 600;
   cursor: pointer;
+  font: inherit;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.muted {
+  color: var(--muted);
 }
 
 .error {
-  color: #fca5a5;
+  color: var(--danger);
 }
 
-/* Logical properties keep spacing correct under both LTR and RTL. */
+/* ---- dialog ---- */
+
+.dialog {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 50;
+}
+
+.dialog-body {
+  background: var(--card);
+  border-radius: 12px;
+  padding: 20px;
+  width: 100%;
+  max-width: 480px;
+}
+
+.dialog-body h2 {
+  margin-top: 0;
+}
+
+.dialog-body label {
+  display: block;
+  margin-bottom: 12px;
+}
+
+.dialog-body label input {
+  display: block;
+  width: 100%;
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 8px 10px;
+  margin-top: 4px;
+  font: inherit;
+}
+
+.dialog-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+
+.dialog-actions button:first-child {
+  background: var(--card);
+  color: var(--text);
+  border: 1px solid var(--line);
+}
+
+.success {
+  display: grid;
+  gap: 12px;
+}
+
+.download {
+  display: inline-block;
+  padding: 8px 14px;
+  background: var(--accent);
+  color: #06222b;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* ---- login ---- */
+
+.login {
+  max-width: 400px;
+  margin: 0 auto;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 24px;
+  display: grid;
+  gap: 16px;
+}
+
+.login h2 {
+  margin: 0;
+}
+
+.login label {
+  display: block;
+}
+
+.login label input {
+  display: block;
+  width: 100%;
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin-top: 4px;
+  font: inherit;
+}
+
+/* ---- RTL ---- */
+
 [dir="rtl"] .app {
   text-align: right;
+}
+
+[dir="rtl"] .dialog-actions {
+  justify-content: flex-start;
 }

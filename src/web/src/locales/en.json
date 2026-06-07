@@ -6,5 +6,51 @@
   "language": "Language",
   "category": "Category",
   "loading": "Loading…",
-  "error": "Could not load the catalog. Is the API running?"
+  "error": "Could not load the catalog. Is the API running?",
+  "nav": {
+    "catalog": "Catalog",
+    "purchases": "My Purchases",
+    "signIn": "Sign in",
+    "signOut": "Sign out"
+  },
+  "search": {
+    "placeholder": "Search by code, title or description…",
+    "empty": "No documents match \"{{q}}\".",
+    "total": "{{total}} result(s)"
+  },
+  "pager": {
+    "prev": "Previous",
+    "next": "Next",
+    "position": "Page {{page}} of {{total}}"
+  },
+  "catalog": {
+    "empty": "No documents in the catalog yet."
+  },
+  "checkout": {
+    "price": "Price",
+    "buyerName": "Your name",
+    "buyerEmail": "Email",
+    "confirm": "Confirm license",
+    "processing": "Processing…",
+    "success": "Licence issued. Download your watermarked PDF below.",
+    "download": "Download PDF",
+    "signInFirst": "Please sign in first to license documents."
+  },
+  "common": {
+    "close": "Close",
+    "cancel": "Cancel"
+  },
+  "purchases": {
+    "empty": "You have not licensed any documents yet.",
+    "licensedTo": "Licensed to",
+    "ref": "Reference",
+    "download": "Download PDF"
+  },
+  "login": {
+    "title": "Sign in",
+    "demoNote": "Demo: any username works, no password required.",
+    "username": "Username",
+    "submit": "Sign in",
+    "submitting": "Signing in…"
+  }
 }

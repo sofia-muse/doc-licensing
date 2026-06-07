@@ -156,14 +156,19 @@ This repository is the **starting skeleton**. The plan to take it to "portfolio-
       `q` / `category` filtering and paging via `EF.Functions.Like` across code, titles (EN+HE)
       and descriptions; catalog expanded to 12 bilingual documents across 12 categories;
       `dotnet-ef` registered as a local tool; search tests added.
+- [x] **Day 5** — Frontend: routes via `react-router-dom`, JWT-backed `AuthProvider` + demo
+      login flow, debounced `SearchBar` driving `GET /api/catalog/search` with paging, modal
+      `CheckoutDialog` with form validation and success state, "My Purchases" page backed by
+      `localStorage`, and Vitest + Testing Library tests for the RTL flip, search debounce, and
+      checkout sign-in gating.
 - [ ] **Day 3** — Implement `StripePaymentService` (test mode) and `SendGridEmailService` for real;
       handle the Stripe webhook to confirm payment.
 - [ ] **Day 4** — Replace demo JWT with ASP.NET Core Identity (or Azure AD); a real "my purchases"
       page behind auth.
-- [ ] **Day 5** — Frontend: checkout form + purchase history, loading/empty/error states, and basic
-      component tests (Vitest + Testing Library).
-- [ ] **Day 6** — Deploy: API to Azure App Service, SQL to Azure SQL, frontend to Azure Static Web
-      Apps; wire the CI to deploy on `main`.
+- [ ] **Day 6** _(deferred)_ — Deploy to Azure. First attempt was blocked by network restrictions
+      (corporate DNS, Safe Browsing on the unique-hostname URL, no log visibility). Will retry from
+      an unrestricted network with the same target architecture (App Service + Azure SQL + Static
+      Web Apps).
 - [ ] **Day 7** — Polish: architecture notes, screenshots/GIF in this README, accessibility pass on
       the RTL layout.
 

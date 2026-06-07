@@ -6,5 +6,51 @@
   "language": "שפה",
   "category": "קטגוריה",
   "loading": "טוען…",
-  "error": "לא ניתן לטעון את הקטלוג. האם ה-API פועל?"
+  "error": "לא ניתן לטעון את הקטלוג. האם ה-API פועל?",
+  "nav": {
+    "catalog": "קטלוג",
+    "purchases": "הרכישות שלי",
+    "signIn": "התחברות",
+    "signOut": "התנתקות"
+  },
+  "search": {
+    "placeholder": "חיפוש לפי קוד, כותרת או תיאור…",
+    "empty": "לא נמצאו מסמכים התואמים ל-\"{{q}}\".",
+    "total": "{{total}} תוצאות"
+  },
+  "pager": {
+    "prev": "הקודם",
+    "next": "הבא",
+    "position": "עמוד {{page}} מתוך {{total}}"
+  },
+  "catalog": {
+    "empty": "אין עדיין מסמכים בקטלוג."
+  },
+  "checkout": {
+    "price": "מחיר",
+    "buyerName": "השם שלך",
+    "buyerEmail": "אימייל",
+    "confirm": "אישור רישוי",
+    "processing": "מעבד…",
+    "success": "הרישיון הונפק. הורד את ה-PDF המסומן מטה.",
+    "download": "הורד PDF",
+    "signInFirst": "אנא התחבר/י לפני רישוי מסמכים."
+  },
+  "common": {
+    "close": "סגור",
+    "cancel": "ביטול"
+  },
+  "purchases": {
+    "empty": "עדיין לא רשמת מסמכים.",
+    "licensedTo": "מורשה ל-",
+    "ref": "סימוכין",
+    "download": "הורד PDF"
+  },
+  "login": {
+    "title": "התחברות",
+    "demoNote": "דמו: כל שם משתמש עובד, ללא צורך בסיסמה.",
+    "username": "שם משתמש",
+    "submit": "התחבר",
+    "submitting": "מתחבר…"
+  }
 }

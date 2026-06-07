@@ -1,21 +1,20 @@
-import { useTranslation } from 'react-i18next'
-import { LanguageSwitcher } from './components/LanguageSwitcher'
-import { CatalogList } from './components/CatalogList'
+import { Routes, Route, Navigate } from 'react-router-dom'
+import { Nav } from './components/Nav'
+import { CatalogPage } from './pages/CatalogPage'
+import { PurchasesPage } from './pages/PurchasesPage'
+import { LoginPage } from './pages/LoginPage'
 
 export default function App() {
-  const { t } = useTranslation()
-
   return (
     <div className="app">
-      <header>
-        <div>
-          <h1>{t('title')}</h1>
-          <p className="subtitle">{t('subtitle')}</p>
-        </div>
-        <LanguageSwitcher />
-      </header>
+      <Nav />
       <main>
-        <CatalogList />
+        <Routes>
+          <Route path="/" element={<CatalogPage />} />
+          <Route path="/purchases" element={<PurchasesPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
       </main>
     </div>
   )
