@@ -299,12 +299,9 @@ button:disabled {
   font: inherit;
 }
 
-/* ---- RTL ---- */
-
-[dir="rtl"] .app {
-  text-align: right;
-}
-
-[dir="rtl"] .dialog-actions {
-  justify-content: flex-start;
-}
+/* ---- RTL ----
+ * Nothing direction-specific is needed: `text-align: start` is the default,
+ * and `justify-content: flex-end` already follows the writing direction in
+ * flexbox (LTR → right edge, RTL → left edge), so the dialog actions sit on
+ * the natural "end" of the page in both directions.
+ */

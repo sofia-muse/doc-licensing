@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useId, useRef, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { checkout, downloadUrl, type CheckoutResult, type DocumentDto } from '../api'
 import { useAuth } from '../auth'
@@ -12,19 +12,35 @@ interface Props {
 export function CheckoutDialog({ doc, onClose }: Props) {
   const { t } = useTranslation()
   const { token, username } = useAuth()
+  const headingId = useId()
 
   const [name, setName] = useState(username ?? '')
   const [email, setEmail] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [result, setResult] = useState<CheckoutResult | null>(null)
+  const nameInputRef = useRef<HTMLInputElement>(null)
+
+  // Escape closes the dialog regardless of branch (sign-in prompt, form, success).
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') onClose()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [onClose])
+
+  // Move keyboard focus into the form on open so it's reachable without a mouse.
+  useEffect(() => {
+    if (token && !result) nameInputRef.current?.focus()
+  }, [token, result])
 
   // If the user isn't authenticated, point them at the sign-in flow.
   if (!token) {
     return (
-      <div className="dialog" role="dialog" aria-modal="true">
+      <div className="dialog" role="dialog" aria-modal="true" aria-labelledby={headingId}>
         <div className="dialog-body">
-          <h2>{doc.code}</h2>
+          <h2 id={headingId}>{doc.code}</h2>
           <p>{t('checkout.signInFirst')}</p>
           <div className="dialog-actions">
             <button type="button" onClick={onClose}>{t('common.close')}</button>
@@ -50,9 +66,9 @@ export function CheckoutDialog({ doc, onClose }: Props) {
   }
 
   return (
-    <div className="dialog" role="dialog" aria-modal="true">
+    <div className="dialog" role="dialog" aria-modal="true" aria-labelledby={headingId}>
       <div className="dialog-body">
-        <h2>{doc.code} — {doc.title}</h2>
+        <h2 id={headingId}>{doc.code} — {doc.title}</h2>
         <p className="muted">
           {t('checkout.price')}: {doc.price.toFixed(2)} {doc.currency}
         </p>
@@ -77,6 +93,7 @@ export function CheckoutDialog({ doc, onClose }: Props) {
             <label>
               {t('checkout.buyerName')}
               <input
+                ref={nameInputRef}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required

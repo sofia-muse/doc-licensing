@@ -46,6 +46,48 @@ flowchart LR
     I -.implemented by.-> M
 ```
 
+### Checkout flow — request lifecycle
+
+A typical purchase goes through four endpoints. The watermarked PDF is generated on download
+(not on checkout), so a re-download always carries the latest buyer name and "issued" date.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User as Browser
+    participant SPA as React SPA
+    participant Auth as POST /api/auth/token
+    participant Cat as GET /api/catalog/search
+    participant Co as POST /api/checkout
+    participant CS as CheckoutService
+    participant Repo as IDocumentRepository (EF Core)
+    participant Pay as IPaymentService
+    participant Mail as IEmailService
+    participant Doc as GET /api/documents/{id}/download
+    participant PDF as IPdfService (QuestPDF)
+
+    User->>SPA: Sign in (username)
+    SPA->>Auth: { username }
+    Auth-->>SPA: { access_token }
+    SPA->>Cat: ?q=&page=&lang=
+    Cat-->>SPA: PagedResult&lt;DocumentDto&gt;
+    User->>SPA: Click "License"
+    SPA->>Co: Bearer token + { documentId, name, email }
+    Co->>CS: CheckoutAsync
+    CS->>Repo: GetByIdAsync
+    CS->>Pay: ChargeAsync
+    Pay-->>CS: PaymentResult
+    CS->>Repo: AddPurchaseAsync
+    CS->>Mail: SendReceiptAsync
+    CS-->>Co: CheckoutResult (downloadUrl)
+    Co-->>SPA: CheckoutResult
+    SPA->>Doc: GET /api/documents/{id}/download?purchase=…
+    Doc->>Repo: GetPurchaseAsync + GetByIdAsync
+    Doc->>PDF: GenerateLicensedPdf(doc, buyerName)
+    PDF-->>Doc: bytes
+    Doc-->>User: application/pdf (watermarked)
+```
+
 **Projects**
 
 | Project | Responsibility |
@@ -55,6 +97,19 @@ flowchart LR
 | `DocLicensing.Api` | Controllers, DI wiring, Swagger, JWT auth, CORS. |
 | `DocLicensing.Tests` | xUnit tests for the checkout flow using in-memory fakes. |
 | `src/web` | React + TypeScript frontend with i18n and RTL. |
+
+---
+
+## Screenshots
+
+| | |
+|---|---|
+| **Catalog (English)** — paged catalog with the debounced search bar | ![Catalog page in English](screenshots/catalog-en.png) |
+| **Catalog (עברית)** — the same page, language toggle flips the whole layout to RTL | ![Catalog page in Hebrew, RTL layout](screenshots/catalog-he.png) |
+| **Checkout success** — JWT-gated checkout returns a watermarked-PDF download link | ![Checkout dialog success state](screenshots/checkout-success.png) |
+| **Swagger** — the API surface (Catalog / Checkout / Documents / Auth) | ![Swagger UI for the API](screenshots/swagger.png) |
+
+_See `screenshots/README.md` for the capture checklist used to produce these._
 
 ---
 
@@ -140,9 +195,24 @@ These are the choices I'd defend in a review — no metrics I can't measure, jus
 - **Localisation in the data model, not duplicated rows.** A `Document` carries both `TitleEn` and
   `TitleHe`; `CatalogService` projects to a single localised `DocumentDto` based on the requested
   language. The frontend mirrors this with one resource bundle per language and an RTL flip driven
-  by the document `dir` attribute.
-- **EnsureCreated for the demo, migrations for real.** Startup seeding keeps first-run friction at
-  zero. Moving to EF migrations is the first roadmap item.
+  by the document `dir` attribute, applied from `LanguageSwitcher` on every language change.
+- **EF Core migrations as the source of truth.** `Database.Migrate()` runs on dev startup, so a
+  fresh checkout boots a schema + seed in one step. `dotnet-ef` is registered as a local tool
+  (`.config/dotnet-tools.json`) so `dotnet tool restore` is enough to add new migrations.
+- **Search via `EF.Functions.Like` across five fields** (`Code`, `TitleEn`, `TitleHe`,
+  `DescriptionEn`, `DescriptionHe`). A single SQL query gives bilingual relevance without an
+  extra index store; Examine/Lucene is the obvious upgrade when this gets too slow.
+- **Auth as a React Context, not props drilling.** `AuthProvider` (`src/web/src/auth.tsx`) holds
+  the JWT in `localStorage` so a refresh keeps you signed in; `useAuth()` reads it from any page
+  or component. The checkout call attaches the token from one place (`api.ts`).
+- **Pages own data, components stay dumb.** Each route under `src/web/src/pages/` does the
+  fetching and URL-state handling; the components under `src/web/src/components/` (`CatalogCard`,
+  `SearchBar`, `CheckoutDialog`) take props and emit events. Makes the components trivial to
+  test in isolation.
+- **Debounce in `SearchBar` owns a local draft.** The input is responsive to keystrokes
+  (immediate `draft` state) but only fires `onChange` after the user stops typing for
+  `debounceMs`. Search URLs in the address bar update at most once per pause, so refreshes
+  and shares give the right result.
 
 ---
 
@@ -169,8 +239,11 @@ This repository is the **starting skeleton**. The plan to take it to "portfolio-
       (corporate DNS, Safe Browsing on the unique-hostname URL, no log visibility). Will retry from
       an unrestricted network with the same target architecture (App Service + Azure SQL + Static
       Web Apps).
-- [ ] **Day 7** — Polish: architecture notes, screenshots/GIF in this README, accessibility pass on
-      the RTL layout.
+- [x] **Day 7** — README polish: checkout-flow sequence diagram, screenshots section, expanded
+      design-decisions (frontend architecture, debounce, auth context); `CheckoutDialog` Escape +
+      autofocus + `aria-labelledby`; `LanguageSwitcher` syncs `<html dir|lang>` on mount; dropped
+      two incorrect `[dir="rtl"]` CSS overrides so `text-align: start` and `justify-content:
+      flex-end` follow the writing direction natively.
 
 ---
 
