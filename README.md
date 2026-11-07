@@ -1,5 +1,9 @@
 # DocLicensing
 
+## Current status · 7 November 2026
+
+Local portfolio prototype. The English and Hebrew catalogs, demo sign-in, fake-payment license issuance and Swagger UI were opened successfully for the screenshots below. Payment uses the Fake provider and email uses Log; real Stripe/SendGrid integrations remain stubs. No matching deployment was found in the connected Vercel account.
+
 A small, production-shaped **document-licensing** application: browse a bilingual (Hebrew/English)
 catalog of standards documents, license one through a card payment, and receive a **watermarked,
 single-licence PDF** plus an email receipt.
@@ -104,10 +108,10 @@ sequenceDiagram
 
 | | |
 |---|---|
-| **Catalog (English)** — paged catalog with the debounced search bar | ![Catalog page in English](screenshots/catalog-en.png) |
-| **Catalog (עברית)** — the same page, language toggle flips the whole layout to RTL | ![Catalog page in Hebrew, RTL layout](screenshots/catalog-he.png) |
-| **Checkout success** — JWT-gated checkout returns a watermarked-PDF download link | ![Checkout dialog success state](screenshots/checkout-success.png) |
-| **Swagger** — the API surface (Catalog / Checkout / Documents / Auth) | ![Swagger UI for the API](screenshots/swagger.png) |
+| **Catalog (English)** — paged catalog with the debounced search bar | ![Catalog page in English](screenshots/catalog-en.jpg) |
+| **Catalog (עברית)** — the same page, language toggle flips the whole layout to RTL | ![Catalog page in Hebrew, RTL layout](screenshots/catalog-he.jpg) |
+| **Checkout success** — JWT-gated checkout returns a watermarked-PDF download link | ![Checkout dialog success state](screenshots/checkout-success.jpg) |
+| **Swagger** — the API surface (Catalog / Checkout / Documents / Auth) | ![Swagger UI for the API](screenshots/swagger.jpg) |
 
 _See `screenshots/README.md` for the capture checklist used to produce these._
 
@@ -218,7 +222,7 @@ These are the choices I'd defend in a review — no metrics I can't measure, jus
 
 ## One-week build roadmap
 
-This repository is the **starting skeleton**. The plan to take it to "portfolio-ready":
+The checklist below records implementation progress. Current local-demo verification is described above; public deployment and real provider integrations remain unfinished:
 
 - [x] **Day 1** — Solution skeleton: layered API, EF Core + seed, catalog endpoint, React catalog
       with EN/HE + RTL, Swagger, tests, Docker, CI.
